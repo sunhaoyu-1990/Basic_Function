@@ -3,8 +3,8 @@
 import numpy as np
 import pickle
 import scipy.special
-import Keyword_and_Parameter as kp
-import Document_process as dop
+from key_management import Keyword_and_Parameter as kp
+from document import Document_process as dop
 
 '''
     功能内容：多隐层结构的神经网络模型算法，包括网络参数初始化、网络结果运算、网络误差反向传递、网络训练过程和网络训练准确率计算

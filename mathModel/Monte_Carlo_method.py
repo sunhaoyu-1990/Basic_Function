@@ -9,8 +9,7 @@
 import csv
 import datetime
 from data import Data_Basic_Function as dbf
-import Keyword_and_Parameter as kp
-
+from key_management import Keyword_and_Parameter as kp
 
 '''
     创建时间: 2022/9/23
@@ -190,8 +189,8 @@ def monte_carlo_main(flow_data, cut_rate, simple_num=500):
 
 if __name__ == '__main__':
     vehicle_type = ['1', '2', '3', '4', '11', '12', '13', '14', '15', '16']
-    have_data = dbf.get_disc_from_document('./4.statistic_data/basic_data/820_have_type.csv',
-                                                      [0, 1, 2, 5], encoding='utf-8', ifIndex=False, key_length=3, key_for_N=False)
+    have_data = dbf.get_dict_from_document('./4.statistic_data/basic_data/820_have_type.csv',
+                                           [0, 1, 2, 5], encoding='utf-8', ifIndex=False, key_length=3, key_for_N=False)
     data_result = []
     start_time = '2022-08-07 00:00:00'
     end_time = '2022-08-07 23:55:00'

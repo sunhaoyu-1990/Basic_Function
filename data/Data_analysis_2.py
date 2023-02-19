@@ -2,10 +2,10 @@ import datetime
 import math
 
 import numpy as np
-import Document_process as dop
+from document import Document_process as dop
 from data import Data_Basic_Function as dbf
 import Parameter_Comput as pc
-import Keyword_and_Parameter as kp
+from key_management import Keyword_and_Parameter as kp
 import csv
 
 '''
@@ -32,10 +32,10 @@ def get_loss_gantry_by_plate(vehicle_plate):
     case_data_vehicle_path = kp.get_parameter_with_keyword('case_data_vehicle_path')
     case_gantry_result_path = case_data_vehicle_path + vehicle_plate + '/gantry_result_' + vehicle_plate + '.csv'
     # 获取标准路径的正向字典数据
-    standard_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
+    standard_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
                                                encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取标准路径的反向字典数据
-    standard_back_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    standard_back_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                     ['EXROADNODEID', 'ENROADNODEID'],
                                                     encoding='gbk', key_for_N=True, key_for_N_type='list')
 
@@ -199,13 +199,13 @@ def compute_num_of_gantry_and_station(path, treat_type, seperate_time=5, start_d
     if treat_type == 'gantry':
         path_list = dop.path_of_holder_document('./4.data_check/gantry_flow/')
         if len(path_list) != 0:
-            key_value_type = dbf.get_disc_from_document('./4.data_check/gantry_flow/gantry_type_flow.csv',
+            key_value_type = dbf.get_dict_from_document('./4.data_check/gantry_flow/gantry_type_flow.csv',
                                                         [0, 1, 2, 3, 4], encoding='utf-8', key_length=4, ifIndex=False)
-            key_value_class = dbf.get_disc_from_document('./4.data_check/gantry_flow/gantry_class_flow.csv',
+            key_value_class = dbf.get_dict_from_document('./4.data_check/gantry_flow/gantry_class_flow.csv',
                                                          [0, 1, 2, 3, 4], encoding='utf-8', key_length=4, ifIndex=False)
-            key_value_from = dbf.get_disc_from_document('./4.data_check/gantry_flow/gantry_from_flow.csv',
+            key_value_from = dbf.get_dict_from_document('./4.data_check/gantry_flow/gantry_from_flow.csv',
                                                         [0, 1, 2, 3, 4], encoding='utf-8', key_length=4, ifIndex=False)
-            key_value_enHex = dbf.get_disc_from_document('./4.data_check/gantry_flow/enHex_type_flow.csv',
+            key_value_enHex = dbf.get_dict_from_document('./4.data_check/gantry_flow/enHex_type_flow.csv',
                                                          [0, 1, 2, 3, 4, 5], encoding='utf-8', key_length=5,
                                                          ifIndex=False)
         else:
@@ -221,10 +221,10 @@ def compute_num_of_gantry_and_station(path, treat_type, seperate_time=5, start_d
         key_value_class = {}  # 记录各收费站各车种的下站流量
 
     # 获取门架ID与其入口收费站的对应字典数据
-    gantry_enStation = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv', ['id', 'enTollStation'],
+    gantry_enStation = dbf.get_dict_from_document('../Data_Origin/tollinterval.csv', ['id', 'enTollStation'],
                                                   encoding='utf-8')
     # 获取收费站ID和HEX码的对应字典数据
-    station_HEX = dbf.get_disc_from_document('../Data_Origin/station_HEX.csv', ['id', 'NEWSTATIONHEX'],
+    station_HEX = dbf.get_dict_from_document('../Data_Origin/station_HEX.csv', ['id', 'NEWSTATIONHEX'],
                                              encoding='gbk')
     for k, path in enumerate(paths):
         if start_date != '' and path[-12:-4] < start_date:
@@ -506,11 +506,11 @@ def compute_direction_num_of_station(start_time, end_time, seperate_time=5):
     # gantry_length = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv', ['id', 'length'], encoding='utf-8')
 
     # 获取收费单元的标准路径字典
-    gantry_relation_list = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    gantry_relation_list = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                       ['ENROADNODEID', 'EXROADNODEID'],
                                                       encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取收费单元的逆向标准路径字典
-    gantry_back_relation_list = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    gantry_back_relation_list = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                            ['EXROADNODEID', 'ENROADNODEID'],
                                                            encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 逐条进行分析合并
@@ -711,19 +711,19 @@ def get_pass_last_no_next_passid(start_time, end_time):
     # gantrys = ["G003061003000510", "G003061003000610", "G003061003000410", "G003061003001610", "G003061003001620"]
     origin_data = {}
     # 获取标准路径的正向字典数据
-    standard_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
+    standard_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
                                                encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取标准路径的反向字典数据
-    standard_back_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    standard_back_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                     ['EXROADNODEID', 'ENROADNODEID'],
                                                     encoding='gbk', key_for_N=True, key_for_N_type='list')
-    station_in_dict = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv',
+    station_in_dict = dbf.get_dict_from_document('../Data_Origin/tollinterval.csv',
                                                  ['id', 'enTollStation'],
                                                  encoding='utf-8', key_for_N=False, key_for_N_type='list')
     # station_out_dict = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv',
     #                                              ['id', 'exTollStation'],
     #                                              encoding='utf-8', key_for_N=False, key_for_N_type='list')
-    station_id = dbf.get_disc_from_document('../Data_Origin/station_HEX.csv',
+    station_id = dbf.get_dict_from_document('../Data_Origin/station_HEX.csv',
                                             ['NEWSTATIONHEX', 'id'],
                                             encoding='gbk', key_for_N=False, key_for_N_type='list')
 
@@ -974,7 +974,7 @@ def get_speed_of_intervals(start_time, end_time, ifMonth=False):
         month = ['202107', '202108', '202109', '202110', '202111', '202112', '202201', '202202', '202203', '202204',
                  '202205', '202206', '202207', '202208']
     # 获取各收费单元间的标准长度
-    gantry_service_list = dbf.get_disc_from_document('../Data_Origin/gantry_service.csv',
+    gantry_service_list = dbf.get_dict_from_document('../Data_Origin/gantry_service.csv',
                                                      ['GANTRYID', 'BEFOREGANTRYID', 'DISTANCE'],
                                                      encoding='gbk', length=16, key_length=2)
     # 获得所有中间特征数据的地址
@@ -1268,7 +1268,7 @@ def get_preN_time_flow_and_rate(origin_path, pre_num, type_threshold):
     :param type_threshold: 统计车型占比的阈值，当车型大于这个阈值时，才进行占比统计
     :return:
     """
-    data = dbf.get_disc_from_document(origin_path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
+    data = dbf.get_dict_from_document(origin_path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
                                       ifIndex=False, key_for_N_type='list', sign='_')
     # 计算各时刻的总流量
     data_total = dbf.compute_dict_by_group(data, [0, 1], 'sum', '_')
@@ -1348,7 +1348,7 @@ def get_preN_time_speed(origin_path, pre_num):
     :param pre_num:
     :return:
     """
-    data = dbf.get_disc_from_document(origin_path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
+    data = dbf.get_dict_from_document(origin_path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
                                       ifIndex=False, key_for_N_type='list', sign='_')
     data_avg = dbf.compute_dict_by_group(data, [], 'avg', '')
     data_min = dbf.compute_dict_by_group(data, [], 'min', '')
@@ -1405,9 +1405,9 @@ def get_preN_time_speed_variance(origin_path, pre_num):
     :return:
     """
     # 生成每个门架每个时刻对应的时间和速度数组
-    data_time = dbf.get_disc_from_document(origin_path, [0, 1, 2], encoding='utf-8', key_for_N=False, key_length=2,
+    data_time = dbf.get_dict_from_document(origin_path, [0, 1, 2], encoding='utf-8', key_for_N=False, key_length=2,
                                            ifIndex=False, key_for_N_type='list', sign='_')
-    data_speed = dbf.get_disc_from_document(origin_path, [0, 1, 4], encoding='utf-8', key_for_N=False, key_length=2,
+    data_speed = dbf.get_dict_from_document(origin_path, [0, 1, 4], encoding='utf-8', key_for_N=False, key_length=2,
                                             ifIndex=False, key_for_N_type='list', sign='_')
 
     # 对每个门架每个时刻的时间和速度进行排序
@@ -1579,7 +1579,7 @@ def get_vehicle_highCore_without_check(start_time, end_time, core, JK_list_path)
                 highCore_dict[highCore_data[i][1]] = highCore_data[i]
 
     # 读取工单信息，并转为字典类型
-    JK_list_dict = dbf.get_disc_from_document(JK_list_path, [''], key_for_N=True, ifIndex=True, key_for_N_type='list', sign='_')
+    JK_list_dict = dbf.get_dict_from_document(JK_list_path, [''], key_for_N=True, ifIndex=True, key_for_N_type='list', sign='_')
 
     # 遍历高风险车牌
     for key in highCore_dict.keys():

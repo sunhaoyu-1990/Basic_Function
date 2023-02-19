@@ -317,7 +317,7 @@ def save_data_of_important(data, save_path, save_type, charge_features=None, upl
         length = len(charge_features)
         charge_features.extend(upload_features)
         # 获取原有数据
-        origin_data = dbf.get_disc_from_document(save_path, charge_features, key_length=length, sign='_', ifIndex=False)
+        origin_data = dbf.get_dict_from_document(save_path, charge_features, key_length=length, sign='_', ifIndex=False)
         # 遍历所有保存数据
         for i in range(len(data)):
             # 拼出对比内容

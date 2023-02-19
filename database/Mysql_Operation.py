@@ -5,8 +5,8 @@ import time
 import pandas as pd
 
 import GetData as gd
-import Document_process as dop
-import Keyword_and_Parameter as kp
+from document import Document_process as dop
+from key_management import Keyword_and_Parameter as kp
 from data import Data_Basic_Function as dbf
 
 '''

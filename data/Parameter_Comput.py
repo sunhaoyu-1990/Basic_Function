@@ -14,12 +14,11 @@ import numpy as np
 # import pandas as pd
 import pandas as pd
 
-import neuralNetwork
-import Monte_Carlo_method as mcm
+from mathModel import Monte_Carlo_method as mcm, neuralNetwork
 import Data_analysis_2 as da2
-import Keyword_and_Parameter as kp
+from key_management import Keyword_and_Parameter as kp
 from data import Data_Basic_Function as dbf
-import Document_process as dop
+from document import Document_process as dop
 from chinese_calendar import is_workday
 
 '''
@@ -384,17 +383,17 @@ def get_real_flow_pass_gantry(gantry_id):
     """
     # 先获取当前及上下游门架的实际流量
     # 获取标准路径的正向字典数据
-    standard_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
+    standard_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv', ['ENROADNODEID', 'EXROADNODEID'],
                                                encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取标准路径的反向字典数据
-    standard_back_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    standard_back_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                     ['EXROADNODEID', 'ENROADNODEID'],
                                                     encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取标准路径的反向字典数据
-    last_station_dict = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv', ['id', 'enTollStation'],
+    last_station_dict = dbf.get_dict_from_document('../Data_Origin/tollinterval.csv', ['id', 'enTollStation'],
                                                    encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取标准路径的反向字典数据
-    next_station_dict = dbf.get_disc_from_document('../Data_Origin/tollinterval.csv', ['id', 'exTollStation'],
+    next_station_dict = dbf.get_dict_from_document('../Data_Origin/tollinterval.csv', ['id', 'exTollStation'],
                                                    encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取上下游门架ID
     last_gantry = standard_back_dict[gantry_id]
@@ -545,11 +544,11 @@ def get_real_flow_with_time_revise(paths, if_return=False, treat_type='statistic
     :return:
     """
     # 获取标准路径的反向字典数据
-    standard_dict = dbf.get_disc_from_document('../Data_Origin/tom_noderelation.csv',
+    standard_dict = dbf.get_dict_from_document('../Data_Origin/tom_noderelation.csv',
                                                ['ENROADNODEID', 'EXROADNODEID'],
                                                encoding='gbk', key_for_N=True, key_for_N_type='list')
     # 获取各路段行驶时间数据
-    standard_time_dict = dbf.get_disc_from_document('../Data_Origin/gantry_type_time_statistic_data.csv',
+    standard_time_dict = dbf.get_dict_from_document('../Data_Origin/gantry_type_time_statistic_data.csv',
                                                     ['key', '众数值'], encoding='utf-8')
     if treat_type == 'statistic':
         data_result = {}  # 保存各门架的流量值
@@ -1007,8 +1006,8 @@ def charge_congestion_with_flow_curve(old_inout_data_in, old_inout_data_out, new
         dist = dbf.compute_distance_of_two_list('DTW', this_gantry_out, this_gantry_in,
                                                 {'dist': 'abs', 'warp': 1, 'w': 2, 's': 0.6})
         # 根据阈值，判断相似度是否异常
-        DTW_threshold_data = dbf.get_disc_from_document('./statistic_data/basic_data/DTW_threshold_data.csv',
-                                                          ['id', 'num'], encoding='utf-8', key_for_N=False)
+        DTW_threshold_data = dbf.get_dict_from_document('./statistic_data/basic_data/DTW_threshold_data.csv',
+                                                        ['id', 'num'], encoding='utf-8', key_for_N=False)
         try:  # 如果有新门架，默认为100
             dist_threshold = float(DTW_threshold_data[gantry])  # bug:此处阈值暂时设定为3，后续需要统计合理相似度阈值范围
         except:
@@ -1386,7 +1385,7 @@ def get_DTW_threshold_of_gantrys(threshold):
 def get_have_threshold_of_gantrys():
     """"""
     # 获取各门架的DTW阈值
-    DTW_threshold_dict = dbf.get_disc_from_document('./4.statistic_data/basic_data/DTW_threshold_data.csv',
+    DTW_threshold_dict = dbf.get_dict_from_document('./4.statistic_data/basic_data/DTW_threshold_data.csv',
                                                     [0, 1], encoding='gbk', key_for_N=False, ifIndex=False)
     # 遍历所有承载量数据，分别将每个门架超过其DTW阈值的承载量记录下来
     result = []  # 用于记录超过DTW阈值的门架和承载量信息
@@ -1442,7 +1441,7 @@ def charge_congestion_by_haveNum(now_have_num, this_time, basic_data, station_fl
     """
     congestion_charge = {}  # 保存各门架的是否拥堵结果，其中0为无拥堵，1为预计拥堵，2为通行缓慢
     # 获取各门架的承载量风险阈值
-    have_threshold_dict = dbf.get_disc_from_document('./statistic_data/basic_data/have_threshold_data.csv',
+    have_threshold_dict = dbf.get_dict_from_document('./statistic_data/basic_data/have_threshold_data.csv',
                                                      [0, 1], encoding='gbk', key_for_N=False, ifIndex=False,
                                                      ifNoCol=True)
     if len(gantrys) == 0:
@@ -1604,7 +1603,7 @@ def get_feature_of_flow_calculate(path, treat_type='gantry', if_data=False):
     else:  # 针对文件进行批量参数处理
         if treat_type == 'gantry':
             # 得到门架车型流量的对应字典
-            data = dbf.get_disc_from_document(path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
+            data = dbf.get_dict_from_document(path, [0, 1, 2, 3], encoding='utf-8', key_for_N=False, key_length=3,
                                               ifIndex=False, key_for_N_type='list', sign='_')
             # 遍历各门架车型，计算每条记录的训练数据
             data_sample = []  # 用于保存训练数据
@@ -1656,7 +1655,7 @@ def get_feature_of_flow_calculate(path, treat_type='gantry', if_data=False):
 
         else:
             # 得到门架车型流量的对应字典
-            data = dbf.get_disc_from_document(path, [2, 3, 0, 4, 5], encoding='utf-8', key_for_N=False, key_length=4,
+            data = dbf.get_dict_from_document(path, [2, 3, 0, 4, 5], encoding='utf-8', key_for_N=False, key_length=4,
                                               ifIndex=False, key_for_N_type='list', sign='_')
             # 遍历各门架车型，计算每条记录的训练数据
             data_sample = []  # 用于保存训练数据
@@ -1774,10 +1773,10 @@ def compute_future_flow_of_gantry_station(compute_no, key_name, this_time, basic
                 vehicle_type_list.extend(basic_data[key_name + '_' + vehicle_type[0]])
                 vehicle_type_list.extend(time_data)
                 if k == 0:
-                    max_list = dbf.get_disc_from_document(
+                    max_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/gantry_model/' + key_name + '/max.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
-                    min_list = dbf.get_disc_from_document(
+                    min_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/gantry_model/' + key_name + '/min.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
                 for j, key in enumerate(max_list.keys()):
@@ -1798,10 +1797,10 @@ def compute_future_flow_of_gantry_station(compute_no, key_name, this_time, basic
                 vehicle_type_list.extend(basic_data[key_name + '_' + vehicle_type[0]])
                 vehicle_type_list.extend(time_data)
                 if k == 0:
-                    max_list = dbf.get_disc_from_document(
+                    max_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/station_model/in_model/' + key_name + '/max.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
-                    min_list = dbf.get_disc_from_document(
+                    min_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/station_model/in_model/' + key_name + '/min.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
                 for j, key in enumerate(max_list.keys()):
@@ -1819,10 +1818,10 @@ def compute_future_flow_of_gantry_station(compute_no, key_name, this_time, basic
                 vehicle_type_list.extend(basic_data[key_name + '_' + vehicle_type[0]])
                 vehicle_type_list.extend(time_data)
                 if k == 0:
-                    max_list = dbf.get_disc_from_document(
+                    max_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/station_model/out_model/' + key_name + '/max.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
-                    min_list = dbf.get_disc_from_document(
+                    min_list = dbf.get_dict_from_document(
                         './Network_Parameter_old/station_model/out_model/' + key_name + '/min.csv',
                         [0, 1], encoding='utf-8', ifIndex=False, ifNoCol=True)
                 for j, key in enumerate(max_list.keys()):
@@ -1976,7 +1975,7 @@ def compute_avg_data_of_speed():
     :return:
     """
     # 得到速度的字典
-    gantry_service_list = dbf.get_disc_from_document('./4.statistic_data/basic_data/speed_origin_data_time.csv',
+    gantry_service_list = dbf.get_dict_from_document('./4.statistic_data/basic_data/speed_origin_data_time.csv',
                                                      [0, 2, 1, 3], encoding='gbk', key_for_N=True, key_length=3,
                                                      ifIndex=False, key_for_N_type='list', sign='_')
     # gantry_service_list = dbf.get_disc_from_document(data,
@@ -2106,7 +2105,7 @@ def get_full_data_of_station_flow(data, next_gantry_dict, last_gantry_dict, visu
     columns = list(data.columns.values)
     columns.pop(1)
     times = list(set(data['TIME_POINT_ORDER'].values))
-    data_dict = dbf.get_disc_from_document(data.values, [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    data_dict = dbf.get_dict_from_document(data.values, [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
                                            ifIndex=False, encoding='utf-8', key_length=4, length=[14, 4, 1, 16],
                                            sign='_', input_type='list')
     result_data = []  # 保存补全后结果数据
